@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button"
 import { logout } from "@/features/auth/actions"
-import { LogOut, LayoutDashboard, History, Wallet } from "lucide-react"
+import { LogOut, LayoutDashboard, History, Wallet, Sparkles } from "lucide-react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
@@ -14,6 +14,7 @@ export function Sidebar() {
     { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard, color: "text-blue-500" },
     { href: "/dashboard/trades", label: "Mis Trades", icon: History, color: "text-purple-500" },
     { href: "/dashboard/accounts", label: "Cuentas", icon: Wallet, color: "text-emerald-500" },
+    { href: "/dashboard/analyst", label: "AI Analyst", icon: Sparkles, color: "text-indigo-500" },
   ]
 
   return (
