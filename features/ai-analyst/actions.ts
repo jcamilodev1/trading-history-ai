@@ -4,7 +4,7 @@ import { createClient } from '@/lib/supabase/server'
 import { GoogleGenerativeAI } from '@google/generative-ai'
 import { AIAnalysisResult } from './types'
 
-export async function getAIAnalysis(): Promise<AIAnalysisResult> {
+export async function getAIAnalysis(accountId?: string): Promise<AIAnalysisResult> {
   try {
     const supabase = await createClient()
 
@@ -18,12 +18,19 @@ export async function getAIAnalysis(): Promise<AIAnalysisResult> {
     const thirtyDaysAgo = new Date()
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
 
-    const { data: trades, error } = await supabase
+    let query = supabase
       .from('trades')
       .select('*')
       .eq('user_id', user.id)
       .gte('created_at', thirtyDaysAgo.toISOString())
       .order('created_at', { ascending: true })
+
+    // Filtrar por cuenta si se proporciona
+    if (accountId && accountId !== 'ALL') {
+      query = query.eq('account_id', accountId)
+    }
+
+    const { data: trades, error } = await query
 
     if (error) {
       console.error('Error fetching trades:', error)

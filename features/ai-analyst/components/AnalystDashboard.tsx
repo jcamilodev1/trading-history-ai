@@ -6,18 +6,32 @@ import { Button } from "@/components/ui/button"
 import { Loader2, Sparkles, TrendingUp, AlertTriangle, Lightbulb, CheckCircle2 } from "lucide-react"
 import { getAIAnalysis } from '../actions'
 import { AIAnalysisData, AIAnalysisResult } from '../types'
+import { getAccounts } from '@/features/accounts/actions'
+import { Account } from '@/features/accounts/types'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { useEffect } from 'react'
 
 export function AnalystDashboard() {
   const [analysis, setAnalysis] = useState<AIAnalysisData | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [accounts, setAccounts] = useState<Account[]>([])
+  const [selectedAccountId, setSelectedAccountId] = useState<string>('ALL')
+
+  useEffect(() => {
+    const fetchAccounts = async () => {
+      const data = await getAccounts()
+      setAccounts(data)
+    }
+    fetchAccounts()
+  }, [])
 
   const handleAnalyze = async () => {
     setIsLoading(true)
     setError(null)
 
     try {
-      const result: AIAnalysisResult = await getAIAnalysis()
+      const result: AIAnalysisResult = await getAIAnalysis(selectedAccountId)
 
       if (result.isError) {
         setError(result.errorMessage || 'Error desconocido')
@@ -44,24 +58,43 @@ export function AnalystDashboard() {
             Obtén un diagnóstico profesional de tu operativa reciente impulsado por Gemini.
           </p>
         </div>
-        <Button
-          onClick={handleAnalyze}
-          disabled={isLoading}
-          size="lg"
-          className="bg-indigo-600 hover:bg-indigo-700 text-white shadow-lg shadow-indigo-500/20"
-        >
-          {isLoading ? (
-            <>
-              <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-              Analizando Mercado...
-            </>
-          ) : (
-            <>
-              <Sparkles className="mr-2 h-5 w-5" />
-              Generar Nuevo Análisis
-            </>
-          )}
-        </Button>
+        <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
+          <Select
+            value={selectedAccountId}
+            onValueChange={setSelectedAccountId}
+            disabled={isLoading}
+          >
+            <SelectTrigger className="w-full sm:w-[200px] bg-background">
+              <SelectValue placeholder="Seleccionar Cuenta" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="ALL">Todas las cuentas</SelectItem>
+              {accounts.map((account) => (
+                <SelectItem key={account.id} value={account.id}>
+                  {account.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Button
+            onClick={handleAnalyze}
+            disabled={isLoading}
+            size="lg"
+            className="bg-indigo-600 hover:bg-indigo-700 text-white shadow-lg shadow-indigo-500/20"
+          >
+            {isLoading ? (
+              <>
+                <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                Analizando Mercado...
+              </>
+            ) : (
+              <>
+                <Sparkles className="mr-2 h-5 w-5" />
+                Generar Nuevo Análisis
+              </>
+            )}
+          </Button>
+        </div>
       </div>
 
       {error && (

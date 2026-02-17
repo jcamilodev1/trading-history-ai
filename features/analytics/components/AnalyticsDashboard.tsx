@@ -4,9 +4,10 @@ import { EquityChart } from './EquityChart'
 import { TradesHeatmap } from './TradesHeatmap'
 import { DrawdownChart } from './DrawdownChart'
 import { TradingCalendar } from './TradingCalendar'
-import { calculateMetrics } from '../utils/analytics-helpers'
+import { calculateMetrics, calculateSymbolStats } from '../utils/analytics-helpers'
 import { Trade } from '@/features/trades/types'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { SymbolStats } from './SymbolStats'
 
 interface AnalyticsDashboardProps {
   accountId?: string
@@ -37,6 +38,8 @@ export async function AnalyticsDashboard({ accountId }: AnalyticsDashboardProps)
   return (
     <div className="space-y-4 mb-8">
       <StatsCards metrics={metrics} />
+
+      <SymbolStats stats={calculateSymbolStats(trades as Trade[])} />
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-7 gap-4">
         <EquityChart trades={trades as Trade[]} />

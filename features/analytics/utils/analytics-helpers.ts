@@ -16,6 +16,15 @@ export interface AnalyticsMetrics {
   shortsWon: number
 }
 
+export interface SymbolMetric {
+  symbol: string
+  totalTrades: number
+  winRate: number
+  netProfit: number
+  wins: number
+  losses: number
+}
+
 export interface EquityPoint {
   date: string
   equity: number
@@ -138,4 +147,33 @@ export function calculateEquityCurve(trades: Trade[]): EquityPoint[] {
   })
 
   return curve
+}
+
+export function calculateSymbolStats(trades: Trade[]): SymbolMetric[] {
+  const closedTrades = trades.filter((t) => t.status === "CLOSED" && t.pnl !== null && t.pnl !== undefined)
+  const symbolMap = new Map<string, { wins: number, total: number, pnl: number, losses: number }>()
+
+  closedTrades.forEach((trade) => {
+    const symbol = trade.symbol
+    const stats = symbolMap.get(symbol) || { wins: 0, total: 0, pnl: 0, losses: 0 }
+
+    stats.total++
+    stats.pnl += trade.pnl || 0
+    if ((trade.pnl || 0) > 0) {
+      stats.wins++
+    } else if ((trade.pnl || 0) < 0) {
+      stats.losses++
+    }
+
+    symbolMap.set(symbol, stats)
+  })
+
+  return Array.from(symbolMap.entries()).map(([symbol, stats]) => ({
+    symbol,
+    totalTrades: stats.total,
+    wins: stats.wins,
+    losses: stats.losses,
+    netProfit: Number(stats.pnl.toFixed(2)),
+    winRate: (stats.wins / stats.total) * 100
+  })).sort((a, b) => b.totalTrades - a.totalTrades)
 }

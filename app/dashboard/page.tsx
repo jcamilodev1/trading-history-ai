@@ -4,6 +4,9 @@ import { AnalyticsDashboard } from "@/features/analytics/components/AnalyticsDas
 import { AccountSelector } from "@/features/accounts/components/AccountSelector"
 import { Button } from "@/components/ui/button"
 import { Plus } from "lucide-react"
+import { Suspense } from "react"
+import { TradeListSkeleton } from "@/features/trades/components/TradeListSkeleton"
+
 import {
   Dialog,
   DialogContent,
@@ -20,6 +23,7 @@ interface DashboardPageProps {
 export default async function DashboardPage({ searchParams }: DashboardPageProps) {
   const params = await searchParams
   const accountId = params.account as string | undefined
+  const page = params.page ? parseInt(params.page as string) : 1
 
   return (
     <div className="container mx-auto py-10">
@@ -48,10 +52,14 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
         </div>
       </div>
 
-      <AnalyticsDashboard accountId={accountId} />
+      <Suspense fallback={<div className="h-96 w-full animate-pulse bg-muted rounded-xl" />}>
+        <AnalyticsDashboard accountId={accountId} />
+      </Suspense>
 
       <h2 className="text-2xl font-bold mb-4 mt-8">Historial de Operaciones</h2>
-      <TradeList accountId={accountId} />
+      <Suspense key={`${accountId}-${page}`} fallback={<TradeListSkeleton />}>
+        <TradeList accountId={accountId} page={page} />
+      </Suspense>
     </div>
   )
 }

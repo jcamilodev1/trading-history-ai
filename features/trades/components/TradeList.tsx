@@ -149,6 +149,7 @@ export async function TradeList({
                   },
                 }}
                 className={page <= 1 ? "pointer-events-none opacity-50" : ""}
+                scroll={false}
               >
                 <ChevronLeft className="h-4 w-4 mr-1" />
                 Anterior
@@ -171,6 +172,7 @@ export async function TradeList({
                   },
                 }}
                 className={page >= totalPages ? "pointer-events-none opacity-50" : ""}
+                scroll={false}
               >
                 Siguiente
                 <ChevronRight className="h-4 w-4 ml-1" />
